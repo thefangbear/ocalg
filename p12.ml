@@ -36,7 +36,7 @@ module ConstStream =
       let Cons (_, t) = f in t
     let rec npeek f n = 
       match n with
-        | 0 -> let Cons (a, _) = f in [a]
+        | 0 -> []
         | k -> let Cons (a, _) = f in
           a :: (npeek f (n - 1))
   end
@@ -46,3 +46,17 @@ let rec decode1 = function
   | One a :: t -> [a] @ (decode1 t)
   | Many (cnt, a) :: t ->
     (ConstStream.npeek (ConstStream.create a) cnt) @ (decode t)
+
+
+let () = 
+  let rec print_str_list = function
+    | [] -> ()
+    | [a] -> printf "%s]\n"  a
+    | a :: t -> printf "%s, " a ; 
+      print_str_list t
+  in 
+    printf "[" ;
+    print_str_list (decode [Many (4,"a"); One "b"; Many (2,"c"); Many (2,"a"); One "d"; Many (4,"e")]) ;
+    printf "[" ;
+    print_str_list (decode1 [Many (4,"a"); One "b"; Many (2,"c"); Many (2,"a"); One "d"; Many (4,"e")])
+
